@@ -4,12 +4,14 @@ import com.google.firebase.database.DatabaseError
 import com.example.weightbridge.domain.model.WeightDataModel
 import com.example.weightbridge.domain.repository.FirebaseRepository
 
-class GetWeightDataUseCase {
+class GetWeightDataUseCase(
+    private val firebaseRepository: FirebaseRepository
+) {
     suspend fun getData(
         onFailed: (error: DatabaseError) -> Unit = {},
         onSuccess: (result: List<WeightDataModel>) -> Unit = {}
     ) {
-        FirebaseRepository.fetchData().let {
+        firebaseRepository.fetchData().let {
             it.error?.let { error ->
                 onFailed(error)
             } ?: run {
@@ -23,6 +25,6 @@ class GetWeightDataUseCase {
         onError: (error: DatabaseError) -> Unit = {},
         onSuccess: () -> Unit = {}
     ) {
-        FirebaseRepository.writeData(data, onError, onSuccess)
+        firebaseRepository.writeData(data, onError, onSuccess)
     }
 }

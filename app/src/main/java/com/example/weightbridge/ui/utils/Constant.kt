@@ -39,4 +39,8 @@ object Constant {
     // PreviewView
     const val FETCH_DATA_UI_MESSAGE = "Fetch Data, Please Wait"
     const val FETCH_DATA_FAILED_UI_MESSAGE = "Fetch Failed, Please Check your connection & reopen this page"
+
+    // PreferenceRepository
+    val PREFERENCE_NAME = "local_weight_data"
+    val KEY = "ticket_data"
 }

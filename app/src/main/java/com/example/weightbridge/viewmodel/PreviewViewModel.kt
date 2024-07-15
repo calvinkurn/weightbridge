@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weightbridge.domain.model.WeightDataModel
+import com.example.weightbridge.domain.repository.FirebaseRepository
+import com.example.weightbridge.domain.repository.FirebaseRepositoryImpl
 import com.example.weightbridge.domain.repository.PreferenceRepository
+import com.example.weightbridge.domain.repository.PreferenceRepositoryImpl
 import com.example.weightbridge.domain.usecase.GetWeightDataUseCase
 import com.example.weightbridge.ui.state.PreviewAction
 import com.example.weightbridge.ui.state.PreviewState
@@ -19,7 +22,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class PreviewViewModel : ViewModel() {
+class PreviewViewModel(
+    private val firebaseRepository: FirebaseRepository = FirebaseRepositoryImpl(),
+    private val preferenceRepository: PreferenceRepository = PreferenceRepositoryImpl()
+) : ViewModel() {
 
     private var _uiState = MutableStateFlow<PreviewUiState>(PreviewState.InitialState)
     val uiState get() = _uiState
@@ -41,7 +47,7 @@ class PreviewViewModel : ViewModel() {
             is PreviewAction.SortData -> {
                 _isDescending = action.isDescending
                 _targetField = action.targetField
-                sortData(_tempData)
+                _data.tryEmit(sortData(_tempData))
             }
 
             is PreviewAction.FilterData -> {
@@ -51,35 +57,35 @@ class PreviewViewModel : ViewModel() {
     }
 
     private fun getLocalData(
-        context: Context
+        context: Context?
     ) {
-        val localData = PreferenceRepository.getPreferences(context)
+        val localData = preferenceRepository.getPreferences(context)
         if (localData.isNotEmpty()) {
             val listOfLocalData: MutableList<WeightDataModel> =
                 Gson().fromJson(localData, object : TypeToken<List<WeightDataModel>>() {}.type)
 
-            _data.value = listOfLocalData
-            _uiState.value = PreviewState.LocalData
+            _data.tryEmit(listOfLocalData)
+            _uiState.tryEmit(PreviewState.LocalData)
         }
         getRemoteData(context)
     }
 
-    private fun getRemoteData(context: Context) {
+    private fun getRemoteData(context: Context?) {
         viewModelScope.launch(Dispatchers.IO) {
             // replicate network load
-            delay(3500)
+            delay(1500)
 
             // need to improve using dagger injection
-            GetWeightDataUseCase().getData(onSuccess = { fetchData ->
+            GetWeightDataUseCase(firebaseRepository).getData(onSuccess = { fetchData ->
                 sortData(fetchData).also {
-                    _data.value = it
                     _tempData = it
+                    _data.tryEmit(it)
                 }
-                _uiState.value = PreviewState.FetchComplete
+                _uiState.tryEmit(PreviewState.FetchComplete)
 
-                PreferenceRepository.savePreferences(context, Gson().toJson(fetchData))
+                preferenceRepository.savePreferences(context, Gson().toJson(fetchData))
             }, onFailed = {
-                _uiState.value = PreviewState.FetchFailed
+                _uiState.tryEmit(PreviewState.FetchFailed)
             })
         }
     }
@@ -88,7 +94,7 @@ class PreviewViewModel : ViewModel() {
         _keyword = keyword
         _targetField = targetField
 
-        _data.value = if (_data.value.size > 1 && _keyword.isNotEmpty()) {
+        val filterResult = if (_data.value.size > 1 && _keyword.isNotEmpty()) {
             _tempData.filter {
                 when (targetField) {
                     FILTER_ITEM_DRIVER_NAME -> filterValidator(it.driverName)
@@ -98,6 +104,10 @@ class PreviewViewModel : ViewModel() {
             }
         } else {
             _tempData
+        }
+
+        viewModelScope.launch {
+            _data.emit(filterResult)
         }
     }
 
@@ -116,10 +126,7 @@ class PreviewViewModel : ViewModel() {
                     FILTER_ITEM_LICENSE_NUMBER -> it.licenseNumber
                     else -> it.date
                 }
-            }, _isDescending).also {
-                _data.value = it
-                _tempData = it
-            }
+            }, _isDescending)
         }
     }
 }

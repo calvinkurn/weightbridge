@@ -13,13 +13,22 @@ import com.google.firebase.database.database
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
-object FirebaseRepository {
-    private const val DATABASE_PATH =
-        "https://weightbridge-bca74-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    private val database = Firebase.database(DATABASE_PATH)
-    private val databaseReference = database.getReference()
+interface FirebaseRepository{
+    suspend fun fetchData(): FetchResultDataModel
+    fun writeData(
+        data: WeightDataModel,
+        onError: (error: DatabaseError) -> Unit = {},
+        onSuccess: () -> Unit = {}
+    )
+}
 
-    suspend fun fetchData(): FetchResultDataModel = suspendCancellableCoroutine { coroutine ->
+class FirebaseRepositoryImpl: FirebaseRepository {
+    private val databasePath =
+        "https://weightbridge-bca74-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    private var database = Firebase.database(databasePath)
+    private var databaseReference = database.getReference()
+
+    override suspend fun fetchData(): FetchResultDataModel = suspendCancellableCoroutine { coroutine ->
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(error: DatabaseError) {
                 coroutine.resume(FetchResultDataModel(listOf(), error))
@@ -46,10 +55,10 @@ object FirebaseRepository {
         })
     }
 
-    suspend fun writeData(
+    override fun writeData(
         data: WeightDataModel,
-        onError: (error: DatabaseError) -> Unit = {},
-        onSuccess: () -> Unit = {}
+        onError: (error: DatabaseError) -> Unit,
+        onSuccess: () -> Unit
     ) {
         val firebaseDataMap = data.toFirebaseMap()
         databaseReference.child(data.ticketID).setValue(

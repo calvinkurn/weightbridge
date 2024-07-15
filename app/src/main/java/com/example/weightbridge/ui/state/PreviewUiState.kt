@@ -12,7 +12,7 @@ class PreviewState {
 }
 
 class PreviewAction {
-    data class FetchData(val context: Context): PreviewUiState()
+    data class FetchData(val context: Context?): PreviewUiState()
     data class SortData(val isDescending: Boolean, val targetField: Int): PreviewUiState()
     data class FilterData(val keyword: String, val targetField: Int): PreviewUiState()
 }
