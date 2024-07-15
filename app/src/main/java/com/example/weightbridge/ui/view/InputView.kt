@@ -1,5 +1,6 @@
 package com.example.weightbridge.ui.view
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,6 +47,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.util.Calendar
 
+@SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
@@ -76,7 +78,7 @@ fun InputView(
     }
 
     LaunchedEffect(timePickerState) {
-        timeStringFormat = "${timePickerState.hour}:${timePickerState.minute}"
+        timeStringFormat = "${String.format("%02d", timePickerState.hour)}:${String.format("%02d", timePickerState.minute)}"
     }
 
     var valueInboundWeight by remember { mutableStateOf("") }
