@@ -27,7 +27,7 @@ class InputViewModel(
                 submitData(action.data)
             }
             is InputAction.EditData -> {
-                _editData.value = action.data
+                _editData.tryEmit(action.data)
             }
         }
     }
@@ -37,10 +37,10 @@ class InputViewModel(
             GetWeightDataUseCase(firebaseRepositoryImpl).writeData(
                 data,
                 onSuccess = {
-                    _state.value = InputState.SubmitSuccess
+                    _state.tryEmit(InputState.SubmitSuccess)
                 },
                 onError = {
-                    _state.value = InputState.SubmitFailed
+                    _state.tryEmit(InputState.SubmitFailed)
                 }
             )
         }
