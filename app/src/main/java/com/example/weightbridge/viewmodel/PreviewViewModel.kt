@@ -47,6 +47,10 @@ class PreviewViewModel @Inject constructor(
                 getLocalData()
             }
 
+            is PreviewAction.FetchRemoteData -> {
+                getRemoteData()
+            }
+
             is PreviewAction.SortData -> {
                 _isDescending = action.isDescending
                 _targetField.intValue = action.targetField

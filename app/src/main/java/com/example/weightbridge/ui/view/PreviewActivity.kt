@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +25,12 @@ class PreviewActivity : ComponentActivity() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val viewModel: PreviewViewModel by viewModels { viewModelFactory }
+
+    private val editPageLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        viewModel.setAction(PreviewAction.FetchRemoteData)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,7 +89,7 @@ class PreviewActivity : ComponentActivity() {
     private fun editTicket(data: WeightDataModel) {
         val intent = Intent(this, InputActivity::class.java)
         intent.putExtra(InputActivity.INPUT_EXTRA, data)
-        startActivity(intent)
+        editPageLauncher.launch(intent)
     }
 
     private fun sortTicketList(isDescending: Boolean, targetField: Int) {
@@ -96,5 +103,4 @@ class PreviewActivity : ComponentActivity() {
     private fun inject() {
         (application as WeightCheckerApplication).appComponent.inject(this)
     }
-
 }
