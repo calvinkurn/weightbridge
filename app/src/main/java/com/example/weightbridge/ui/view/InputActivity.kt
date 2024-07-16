@@ -13,8 +13,10 @@ import com.example.weightbridge.ui.state.InputAction
 import com.example.weightbridge.ui.state.InputState
 import com.example.weightbridge.ui.utils.Constant
 import com.example.weightbridge.viewmodel.InputViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -58,8 +60,10 @@ class InputActivity : ComponentActivity() {
                 when(it) {
                     is InputState.SubmitSuccess -> {
                         Toast.makeText(this@InputActivity, Constant.SUBMIT_SUCCESS_MESSAGE, Toast.LENGTH_LONG).show()
-                        delay(1000)
-                        finishActivity(RESULT_OK)
+                        delay(500)
+                        withContext(Dispatchers.Main) {
+                            finish()
+                        }
                     }
                     is InputState.SubmitFailed -> {
                         Toast.makeText(this@InputActivity, Constant.SUBMIT_FAILED_MESSAGE, Toast.LENGTH_LONG).show()
