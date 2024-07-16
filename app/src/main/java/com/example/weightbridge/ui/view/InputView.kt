@@ -35,7 +35,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import com.example.weightbridge.domain.model.FetchResultDataModel
 import com.example.weightbridge.domain.model.WeightDataModel
+import com.example.weightbridge.domain.repository.FirebaseRepository
+import com.example.weightbridge.domain.repository.FirebaseRepositoryImpl
 import com.example.weightbridge.ui.components.InputTextFieldView
 import com.example.weightbridge.ui.utils.Constant
 import com.example.weightbridge.ui.utils.isDriverNameError
@@ -43,6 +46,7 @@ import com.example.weightbridge.ui.utils.isInBoundError
 import com.example.weightbridge.ui.utils.isLicenseNumberError
 import com.example.weightbridge.ui.utils.isOutBoundError
 import com.example.weightbridge.viewmodel.InputViewModel
+import com.google.firebase.database.DatabaseError
 import java.time.Duration
 import java.time.LocalDate
 import java.util.Calendar
@@ -50,9 +54,8 @@ import java.util.Calendar
 @SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
 fun InputView(
-    viewModel: InputViewModel = InputViewModel(),
+    viewModel: InputViewModel,
     onSubmit: (data: WeightDataModel) -> Unit = {}
 ) {
     val date = rememberDatePickerState(
@@ -281,4 +284,21 @@ private fun millisToDate(dateState: DatePickerState): String {
     return (dateState.selectedDateMillis?.let {
         LocalDate.ofEpochDay(Duration.ofMillis(it).toDays())
     } ?: "-").toString()
+}
+
+@Composable
+@Preview
+fun PreviewInputView() {
+    val mockRepo = object: FirebaseRepository {
+        override suspend fun fetchData(): FetchResultDataModel {
+            return FetchResultDataModel(listOf(), null)
+        }
+
+        override fun writeData(
+            data: WeightDataModel,
+            onError: (error: DatabaseError) -> Unit,
+            onSuccess: () -> Unit
+        ) {}
+    }
+    InputView(viewModel = InputViewModel(mockRepo))
 }

@@ -8,9 +8,12 @@ import com.example.weightbridge.ui.utils.Constant
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.inject.Inject
 import kotlin.coroutines.resume
 
 interface FirebaseRepository{
@@ -22,11 +25,11 @@ interface FirebaseRepository{
     )
 }
 
-class FirebaseRepositoryImpl: FirebaseRepository {
+class FirebaseRepositoryImpl @Inject constructor(): FirebaseRepository {
     private val databasePath =
         "https://weightbridge-bca74-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    private var database = Firebase.database(databasePath)
-    private var databaseReference = database.getReference()
+    private val database = Firebase.database(databasePath)
+    private val databaseReference = database.getReference()
 
     override suspend fun fetchData(): FetchResultDataModel = suspendCancellableCoroutine { coroutine ->
         databaseReference.addValueEventListener(object : ValueEventListener {

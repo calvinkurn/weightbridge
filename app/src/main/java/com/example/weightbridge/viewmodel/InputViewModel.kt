@@ -11,9 +11,10 @@ import com.example.weightbridge.ui.state.InputState
 import com.example.weightbridge.ui.state.InputUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class InputViewModel(
-    private val firebaseRepositoryImpl: FirebaseRepository = FirebaseRepositoryImpl()
+class InputViewModel @Inject constructor(
+    private val firebaseRepositoryImpl: FirebaseRepository
 ): ViewModel() {
     private var _state = MutableStateFlow<InputUiState>(InputState.InitialState)
     val state get() = _state

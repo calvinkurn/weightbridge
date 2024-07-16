@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.weightbridge.di.WeightCheckerApplication
 import com.example.weightbridge.domain.model.WeightDataModel
 import com.example.weightbridge.ui.state.InputAction
 import com.example.weightbridge.ui.state.InputState
@@ -13,14 +15,19 @@ import com.example.weightbridge.ui.utils.Constant
 import com.example.weightbridge.viewmodel.InputViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
 class InputActivity : ComponentActivity() {
 
-    private val viewModel: InputViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val viewModel: InputViewModel by viewModels { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inject()
 
         getData()
         observeState()
@@ -60,6 +67,10 @@ class InputActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun inject() {
+        (application as WeightCheckerApplication).appComponent.inject(this)
     }
 
     companion object {
