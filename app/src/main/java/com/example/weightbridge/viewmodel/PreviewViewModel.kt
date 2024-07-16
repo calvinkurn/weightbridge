@@ -1,6 +1,8 @@
 package com.example.weightbridge.viewmodel
 
 import android.content.Context
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weightbridge.domain.model.WeightDataModel
@@ -13,6 +15,7 @@ import com.example.weightbridge.ui.state.PreviewAction
 import com.example.weightbridge.ui.state.PreviewState
 import com.example.weightbridge.ui.state.PreviewUiState
 import com.example.weightbridge.ui.utils.sortByField
+import com.example.weightbridge.ui.view.FILTER_ITEM_DATE
 import com.example.weightbridge.ui.view.FILTER_ITEM_DRIVER_NAME
 import com.example.weightbridge.ui.view.FILTER_ITEM_LICENSE_NUMBER
 import com.google.gson.Gson
@@ -21,10 +24,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PreviewViewModel(
-    private val firebaseRepository: FirebaseRepository = FirebaseRepositoryImpl(),
-    private val preferenceRepository: PreferenceRepository = PreferenceRepositoryImpl()
+class PreviewViewModel @Inject constructor(
+    private val firebaseRepository: FirebaseRepository,
+    private val preferenceRepository: PreferenceRepository
 ) : ViewModel() {
 
     private var _uiState = MutableStateFlow<PreviewUiState>(PreviewState.InitialState)
@@ -34,9 +38,11 @@ class PreviewViewModel(
     val data get() = _data
 
     private var _isDescending = true
-    private var _targetField = FILTER_ITEM_DRIVER_NAME
     private var _keyword = ""
     private var _tempData: List<WeightDataModel> = listOf()
+
+    private var _targetField = mutableIntStateOf(FILTER_ITEM_DATE)
+    val targetField get() = _targetField
 
     fun setAction(action: PreviewUiState) {
         when (action) {
@@ -46,7 +52,7 @@ class PreviewViewModel(
 
             is PreviewAction.SortData -> {
                 _isDescending = action.isDescending
-                _targetField = action.targetField
+                _targetField.intValue = action.targetField
                 _data.tryEmit(sortData(_tempData))
             }
 
@@ -59,7 +65,7 @@ class PreviewViewModel(
     private fun getLocalData(
         context: Context?
     ) {
-        val localData = preferenceRepository.getPreferences(context)
+        val localData = preferenceRepository.getPreferences()
         if (localData.isNotEmpty()) {
             val listOfLocalData: MutableList<WeightDataModel> =
                 Gson().fromJson(localData, object : TypeToken<List<WeightDataModel>>() {}.type)
@@ -83,7 +89,7 @@ class PreviewViewModel(
                 }
                 _uiState.tryEmit(PreviewState.FetchComplete)
 
-                preferenceRepository.savePreferences(context, Gson().toJson(fetchData))
+                preferenceRepository.savePreferences(Gson().toJson(fetchData))
             }, onFailed = {
                 _uiState.tryEmit(PreviewState.FetchFailed)
             })
@@ -92,7 +98,7 @@ class PreviewViewModel(
 
     private fun filterData(keyword: String, targetField: Int) {
         _keyword = keyword
-        _targetField = targetField
+        _targetField.intValue = targetField
 
         val filterResult = if (_data.value.size > 1 && _keyword.isNotEmpty()) {
             _tempData.filter {
@@ -121,7 +127,7 @@ class PreviewViewModel(
             data
         } else {
             data.sortByField({
-                when (_targetField) {
+                when (_targetField.intValue) {
                     FILTER_ITEM_DRIVER_NAME -> it.driverName
                     FILTER_ITEM_LICENSE_NUMBER -> it.licenseNumber
                     else -> it.date

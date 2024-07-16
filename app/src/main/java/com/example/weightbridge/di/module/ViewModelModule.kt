@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.weightbridge.di.ViewModelFactory
 import com.example.weightbridge.di.ViewModelKey
 import com.example.weightbridge.viewmodel.InputViewModel
+import com.example.weightbridge.viewmodel.PreviewViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -19,8 +20,8 @@ abstract class ViewModelModule {
     @ViewModelKey(InputViewModel::class)
     abstract fun bindInputViewModel(viewModel: InputViewModel): ViewModel
 
-//    @Binds
-//    @IntoMap
-//    @ViewModelKey(PreviewViewModel::class)
-//    abstract fun bindPreviewViewModel(viewModel: PreviewViewModel): ViewModel
+    @Binds
+    @IntoMap
+    @ViewModelKey(PreviewViewModel::class)
+    abstract fun bindPreviewViewModel(viewModel: PreviewViewModel): ViewModel
 }

@@ -3,18 +3,21 @@ package com.example.weightbridge.domain.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.weightbridge.ui.utils.Constant
+import javax.inject.Inject
 
 interface PreferenceRepository {
-    fun savePreferences(context: Context?, data: String)
-    fun getPreferences(context: Context?): String
+    fun savePreferences(data: String)
+    fun getPreferences(): String
 }
 
-class PreferenceRepositoryImpl: PreferenceRepository {
+class PreferenceRepositoryImpl @Inject constructor (
+    private val paramContext: Context
+): PreferenceRepository {
     private var sharedPreferences: SharedPreferences? = null
 
-    override fun savePreferences(context: Context?, data: String) {
+    override fun savePreferences(data: String) {
         if (sharedPreferences == null) {
-            sharedPreferences = context?.getSharedPreferences(Constant.PREFERENCE_NAME, Context.MODE_PRIVATE)
+            sharedPreferences = paramContext.getSharedPreferences(Constant.PREFERENCE_NAME, Context.MODE_PRIVATE)
         }
 
         sharedPreferences?.let {
@@ -24,9 +27,9 @@ class PreferenceRepositoryImpl: PreferenceRepository {
         }
     }
 
-    override fun getPreferences(context: Context?): String {
-        if (sharedPreferences == null && context != null) {
-            sharedPreferences = context.getSharedPreferences(Constant.PREFERENCE_NAME, Context.MODE_PRIVATE)
+    override fun getPreferences(): String {
+        if (sharedPreferences == null) {
+            sharedPreferences = paramContext.getSharedPreferences(Constant.PREFERENCE_NAME, Context.MODE_PRIVATE)
         }
 
         return sharedPreferences?.let {

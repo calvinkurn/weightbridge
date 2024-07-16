@@ -26,6 +26,6 @@ class RepositoryModule(private val context: Context) {
     @Provides
     @Singleton
     fun providePreferenceRepository(): PreferenceRepository {
-        return PreferenceRepositoryImpl()
+        return PreferenceRepositoryImpl(context)
     }
 }

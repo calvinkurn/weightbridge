@@ -34,8 +34,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import com.example.weightbridge.domain.model.FetchResultDataModel
+import com.example.weightbridge.domain.model.WeightDataModel
+import com.example.weightbridge.domain.repository.FirebaseRepository
+import com.example.weightbridge.domain.repository.PreferenceRepository
 import com.example.weightbridge.ui.state.PreviewState
 import com.example.weightbridge.viewmodel.PreviewViewModel
+import com.google.firebase.database.DatabaseError
 
 private val filterItems = listOf("Driver Name", "License Number", "Date")
 const val FILTER_ITEM_DRIVER_NAME = 0
@@ -43,15 +48,14 @@ const val FILTER_ITEM_LICENSE_NUMBER = 1
 const val FILTER_ITEM_DATE = 2
 
 @Composable
-@Preview
 fun PreviewSortFilterView(
-    viewModel: PreviewViewModel = PreviewViewModel(),
+    viewModel: PreviewViewModel,
     isDescending: Boolean = true,
     onSort: (isDescending: Boolean, targetField: Int) -> Unit = { _, _ -> },
     onSearch: (keyword: String, targetField: Int) -> Unit = { _, _ -> }
 ) {
     var selectedIndex by remember {
-        mutableIntStateOf(FILTER_ITEM_DRIVER_NAME)
+        mutableIntStateOf(viewModel.targetField.intValue)
     }
     var expanded by remember { mutableStateOf(false) }
     var keyWordValue by remember {
@@ -145,4 +149,33 @@ fun PreviewSortFilterView(
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun SamplePreviewSortFilterView() {
+    val mockPreferenceRepo = object: PreferenceRepository {
+        override fun getPreferences(): String { return ""}
+        override fun savePreferences(data: String) {}
+    }
+    val mockFirebaseRepo = object: FirebaseRepository {
+        override suspend fun fetchData(): FetchResultDataModel {
+            return FetchResultDataModel(listOf(), null)
+        }
+
+        override fun writeData(
+            data: WeightDataModel,
+            onError: (error: DatabaseError) -> Unit,
+            onSuccess: () -> Unit
+        ) {}
+    }
+
+    val viewModel = PreviewViewModel(
+        firebaseRepository = mockFirebaseRepo,
+        preferenceRepository = mockPreferenceRepo
+    )
+
+    viewModel.uiState.tryEmit(PreviewState.FetchComplete)
+
+    PreviewSortFilterView(viewModel = viewModel)
 }

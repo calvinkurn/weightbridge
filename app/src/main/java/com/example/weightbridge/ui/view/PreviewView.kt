@@ -19,15 +19,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.weightbridge.domain.mapper.toCardData
+import com.example.weightbridge.domain.model.FetchResultDataModel
 import com.example.weightbridge.domain.model.WeightDataModel
+import com.example.weightbridge.domain.repository.FirebaseRepository
+import com.example.weightbridge.domain.repository.PreferenceRepository
 import com.example.weightbridge.ui.state.PreviewState
 import com.example.weightbridge.ui.utils.Constant
 import com.example.weightbridge.viewmodel.PreviewViewModel
+import com.google.firebase.database.DatabaseError
 
 @Composable
-@Preview
 fun PreviewView(
-    viewModel: PreviewViewModel = PreviewViewModel(),
+    viewModel: PreviewViewModel,
     onCardEdit: (WeightDataModel) -> Unit = {}
 ) {
     val data by viewModel.data.collectAsState()
@@ -86,4 +89,29 @@ fun PreviewView(
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun SamplePreviewView() {
+    val mockPreferenceRepo = object: PreferenceRepository {
+        override fun getPreferences(): String { return ""}
+        override fun savePreferences(data: String) {}
+    }
+    val mockFirebaseRepo = object: FirebaseRepository {
+        override suspend fun fetchData(): FetchResultDataModel {
+            return FetchResultDataModel(listOf(), null)
+        }
+
+        override fun writeData(
+            data: WeightDataModel,
+            onError: (error: DatabaseError) -> Unit,
+            onSuccess: () -> Unit
+        ) {}
+    }
+
+    PreviewView(viewModel = PreviewViewModel(
+        firebaseRepository = mockFirebaseRepo,
+        preferenceRepository = mockPreferenceRepo
+    ))
 }

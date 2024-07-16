@@ -7,20 +7,29 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.weightbridge.di.ViewModelFactory
+import com.example.weightbridge.di.WeightCheckerApplication
 import com.example.weightbridge.domain.model.WeightDataModel
 import com.example.weightbridge.ui.state.PreviewAction
 import com.example.weightbridge.ui.state.PreviewState
 import com.example.weightbridge.ui.utils.Constant
 import com.example.weightbridge.viewmodel.PreviewViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class PreviewActivity : ComponentActivity() {
 
-    private val viewModel: PreviewViewModel by viewModels()
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val viewModel: PreviewViewModel by viewModels { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        inject()
+
         setContent {
             Column {
                 PreviewSortFilterView(
@@ -83,6 +92,10 @@ class PreviewActivity : ComponentActivity() {
 
     private fun filterTicketList(keyword: String, targetField: Int) {
         viewModel.setAction(PreviewAction.FilterData(keyword, targetField))
+    }
+
+    private fun inject() {
+        (application as WeightCheckerApplication).appComponent.inject(this)
     }
 
 }
