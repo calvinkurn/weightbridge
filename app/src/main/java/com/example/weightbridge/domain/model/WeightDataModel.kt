@@ -13,13 +13,13 @@ data class WeightDataModel(
     val licenseNumber: String = "",
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readInt(),
-        parcel.readInt(),
-        parcel.readInt(),
-        parcel.readString() ?: ""
+        ticketID = parcel.readString() ?: "",
+        date = parcel.readString() ?: "",
+        driverName = parcel.readString() ?: "",
+        inboundWeight = parcel.readInt(),
+        outboundWeight = parcel.readInt(),
+        netWeight = parcel.readInt(),
+        licenseNumber = parcel.readString() ?: ""
     )
 
     override fun describeContents(): Int {
