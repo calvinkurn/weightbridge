@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weightbridge.domain.model.WeightDataModel
 import com.example.weightbridge.domain.repository.FirebaseRepository
-import com.example.weightbridge.domain.repository.FirebaseRepositoryImpl
 import com.example.weightbridge.domain.usecase.GetWeightDataUseCase
 import com.example.weightbridge.ui.state.InputAction
 import com.example.weightbridge.ui.state.InputState

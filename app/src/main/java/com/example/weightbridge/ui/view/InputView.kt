@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import com.example.weightbridge.domain.model.FetchResultDataModel
 import com.example.weightbridge.domain.model.WeightDataModel
 import com.example.weightbridge.domain.repository.FirebaseRepository
-import com.example.weightbridge.domain.repository.FirebaseRepositoryImpl
 import com.example.weightbridge.ui.components.InputTextFieldView
 import com.example.weightbridge.ui.utils.Constant
 import com.example.weightbridge.ui.utils.isDriverNameError
