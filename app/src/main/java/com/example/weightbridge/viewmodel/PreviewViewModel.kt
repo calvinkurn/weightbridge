@@ -2,14 +2,11 @@ package com.example.weightbridge.viewmodel
 
 import android.content.Context
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weightbridge.domain.model.WeightDataModel
 import com.example.weightbridge.domain.repository.FirebaseRepository
-import com.example.weightbridge.domain.repository.FirebaseRepositoryImpl
 import com.example.weightbridge.domain.repository.PreferenceRepository
-import com.example.weightbridge.domain.repository.PreferenceRepositoryImpl
 import com.example.weightbridge.domain.usecase.GetWeightDataUseCase
 import com.example.weightbridge.ui.state.PreviewAction
 import com.example.weightbridge.ui.state.PreviewState
@@ -47,7 +44,7 @@ class PreviewViewModel @Inject constructor(
     fun setAction(action: PreviewUiState) {
         when (action) {
             is PreviewAction.FetchData -> {
-                getLocalData(action.context)
+                getLocalData()
             }
 
             is PreviewAction.SortData -> {
@@ -62,9 +59,7 @@ class PreviewViewModel @Inject constructor(
         }
     }
 
-    private fun getLocalData(
-        context: Context?
-    ) {
+    private fun getLocalData() {
         val localData = preferenceRepository.getPreferences()
         if (localData.isNotEmpty()) {
             val listOfLocalData: MutableList<WeightDataModel> =
@@ -73,10 +68,10 @@ class PreviewViewModel @Inject constructor(
             _data.tryEmit(listOfLocalData)
             _uiState.tryEmit(PreviewState.LocalData)
         }
-        getRemoteData(context)
+        getRemoteData()
     }
 
-    private fun getRemoteData(context: Context?) {
+    private fun getRemoteData() {
         viewModelScope.launch(Dispatchers.IO) {
             // replicate network load
             delay(1500)

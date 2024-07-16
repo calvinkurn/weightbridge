@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.weightbridge.di.ViewModelFactory
 import com.example.weightbridge.di.WeightCheckerApplication
 import com.example.weightbridge.domain.model.WeightDataModel
 import com.example.weightbridge.ui.state.PreviewAction
@@ -44,7 +43,7 @@ class PreviewActivity : ComponentActivity() {
         }
 
         observeState()
-        viewModel.setAction(PreviewAction.FetchData(this))
+        viewModel.setAction(PreviewAction.FetchData)
     }
 
     private fun observeState() {
