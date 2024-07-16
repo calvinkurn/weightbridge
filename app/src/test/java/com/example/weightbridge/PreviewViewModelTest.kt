@@ -4,24 +4,15 @@ import com.example.weightbridge.domain.model.FetchResultDataModel
 import com.example.weightbridge.domain.model.WeightDataModel
 import com.example.weightbridge.domain.repository.FirebaseRepository
 import com.example.weightbridge.domain.repository.PreferenceRepository
-import com.example.weightbridge.domain.repository.PreferenceRepositoryImpl
 import com.example.weightbridge.ui.state.PreviewAction
 import com.example.weightbridge.ui.view.FILTER_ITEM_DRIVER_NAME
 import com.example.weightbridge.viewmodel.PreviewViewModel
-import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkObject
-import io.mockk.mockkStatic
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Before
@@ -51,7 +42,7 @@ class PreviewViewModelTest {
             driverName = driverName
         )
 
-        every { preferenceRepository.getPreferences(any()) } returns STRING_JSON
+        every { preferenceRepository.getPreferences() } returns STRING_JSON
         coEvery { firebaseRepository.fetchData() } returns FetchResultDataModel(
             listOf(
                 dummyRemoteData,
@@ -59,7 +50,7 @@ class PreviewViewModelTest {
             ), null
         )
 
-        viewModel.setAction(PreviewAction.FetchData(null))
+        viewModel.setAction(PreviewAction.FetchData)
 
         viewModel.data.take(2).collectIndexed { index, value ->
             if (index == 0) {
@@ -79,7 +70,7 @@ class PreviewViewModelTest {
             driverName = driverName
         )
 
-        every { preferenceRepository.getPreferences(any()) } returns STRING_JSON
+        every { preferenceRepository.getPreferences() } returns STRING_JSON
         coEvery { firebaseRepository.fetchData() } returns FetchResultDataModel(
             listOf(
                 dummyRemoteData,
@@ -87,7 +78,7 @@ class PreviewViewModelTest {
             ), null
         )
 
-        viewModel.setAction(PreviewAction.FetchData(null))
+        viewModel.setAction(PreviewAction.FetchData)
 
         viewModel.data.take(3).collectIndexed { index, value ->
             if (index == 1) {
@@ -114,12 +105,12 @@ class PreviewViewModelTest {
             )
         }
 
-        every { preferenceRepository.getPreferences(any()) } returns STRING_JSON
+        every { preferenceRepository.getPreferences() } returns STRING_JSON
         coEvery { firebaseRepository.fetchData() } returns FetchResultDataModel(
             dummyRemoteData, null
         )
 
-        viewModel.setAction(PreviewAction.FetchData(null))
+        viewModel.setAction(PreviewAction.FetchData)
 
         viewModel.data.take(3).collectIndexed { index, value ->
             if (index == 1) {
